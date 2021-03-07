@@ -23,26 +23,23 @@ def make_filter(name, producer_id, properties):
         f.append(make_property(name, value))
     return f
 
-def make_crop_filter(producer_id):
-    # TODO: calculate the values automatically?
+def make_qtcrop_filter(producer_id, left, top, width, height):
     properties = {
-        'use_profile': '1',
-        'center': '0',
-        'center_bias': '0',
-        'top': '316',
-        'bottom': '0',
-        'left': '494',
-        'right': '329',
+        'rect': '%d %d %d %d 1' % (left, top, width, height),
+        'circle': '0',
+        'color': '#00000000',
+        'radius': '0',
+        'shotcut:filter': 'cropRectangle',
     }
-    return make_filter('crop', producer_id, properties)
+    return make_filter('qtcrop', producer_id, properties)
 
-def make_affine_filter(producer_id, left, top, width, height):
+def make_affine_filter(producer_id, left, top, width, height, zoom):
     properties = {
         'background': 'color:#00000000',
         'shotcut:filter': 'affineSizePosition',
         'transition:fill': '1',
         'transition:distort': '0',
-        'transition.rect': '%d %d %d %d 1' % (left, top, width, height),
+        'transition.rect': '%d %d %d %d 1' % (left - (width*zoom - width)/2, top - (height*zoom - height)/2, width*zoom, height*zoom),
         'transition.valign': 'middle',
         'transition.halign': 'center',
         'shotcut:animIn': '00:00:00.000',
