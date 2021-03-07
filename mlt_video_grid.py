@@ -90,6 +90,7 @@ class VideoGrid(object):
     main_audio_track_nr = 0
     main_video_track_nr = 1
     videos_added = 0
+    fill = 0
 
     def __init__(self, input_mlt, column_count, video_count, blank):
         self.column_count = column_count
@@ -113,6 +114,10 @@ class VideoGrid(object):
         return int(self.xml.find('profile').attrib.get('height'))
 
     def add_video(self, resource):
+        self.videos_added += 1
+        if resource == 'FILL':
+            self.fill += 1
+            return
         basename = os.path.basename(resource)
         producer_id = 'producerVideoGrid%d' % self.next_producer_id()
         pr = ET.Element('producer', {'id': producer_id})
@@ -132,17 +137,15 @@ class VideoGrid(object):
         }
         for name, value in properties.items():
             pr.append(make_property(name, value))
-        pr.append(make_crop_filter(producer_id))
-        col = self.videos_added % self.column_count
-        row = self.videos_added // self.column_count
-        affine_filter = make_affine_filter(
-            producer_id,
-            left=col*self.single_video_width,
-            top=row*self.single_video_height,
-            width=self.single_video_width,
-            height=self.single_video_height)
-        self.videos_added += 1
-        pr.append(affine_filter)
+        col = (self.videos_added-1-self.fill) % self.column_count
+        row = (self.videos_added-1) // self.column_count
+        left = col * self.single_video_width
+        top = row * self.single_video_height
+        width = self.single_video_width * (1 + self.fill)
+        height = self.single_video_height
+        self.fill = 0
+        pr.append(make_affine_filter(producer_id, left, top, width, height, 1.4))
+        pr.append(make_qtcrop_filter(producer_id, left, top, width, height))
         pos = self.next_insert_position()
         self.xml.getroot().insert(pos, pr)
 

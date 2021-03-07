@@ -7,6 +7,7 @@ This will commonly be required when editing videos for virtual choirs:
 
 You specify the input MLT file (`-i`), the output MLT file (`-o`), the number of columns (`-c`) and, optionally, if videos should only start after some seconds of time which may be used for displaying the title (`-b`).
 Besides that, you will specify all the videos you want to add.
+You can use the special video path `FILL` before a video which is supposed to fit into two columns.
 The number of rows will be calculated automatically.
 If you've got less than `rows x columns` videos, the remaining space will be empty.
 
